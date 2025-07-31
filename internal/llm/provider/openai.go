@@ -525,6 +525,11 @@ func (o *openaiClient) shouldRetry(attempts int, err error) (bool, int64, error)
 			slog.Warn("Retry-After header", "values", retryAfterValues)
 		}
 	} else {
+		// Check if this is a streaming error that shouldn't be retried
+		if strings.Contains(err.Error(), "received error while streaming") {
+			slog.Warn("OpenAI streaming error - not retrying", "error", err.Error())
+			return false, 0, err
+		}
 		slog.Warn("OpenAI API error", "error", err.Error())
 	}
 
