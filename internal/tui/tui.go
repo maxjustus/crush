@@ -338,6 +338,14 @@ func (a *appModel) handleKeyPressMsg(msg tea.KeyPressMsg) tea.Cmd {
 			return cmd
 		}
 	}
+	// When dialogs are present, treat Ctrl-C as Escape
+	if a.dialog.HasDialogs() && key.Matches(msg, a.keyMap.Quit) {
+		escapeMsg := tea.KeyPressMsg(tea.Key{Code: tea.KeyEscape})
+		u, dialogCmd := a.dialog.Update(escapeMsg)
+		a.dialog = u.(dialogs.DialogCmp)
+		return dialogCmd
+	}
+
 	switch {
 	// help
 	case key.Matches(msg, a.keyMap.Help):
